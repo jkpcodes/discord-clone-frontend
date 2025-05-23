@@ -5,7 +5,7 @@ const PageContainer = styled(Box)(({ theme }) => ({
   width: "100%",
   height: "100vh",
   display: "flex",
-  backgroundColor: "#202024",
+  backgroundColor: "#161618",
   justifyContent: "center",
   alignItems: "center",
 }));

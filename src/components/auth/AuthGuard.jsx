@@ -3,12 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../store/authSlice';
 import { setAlert } from '../../store/alertSlice';
+import { setUserDetails } from '../../store/authSlice';
 
 const AuthGuard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
+    const userDetails = localStorage.getItem("userDetails");
+    if (userDetails) {
+      dispatch(setUserDetails(userDetails));
+      navigate("/dashboard");
+    }
+
+    // Add event listener for unauthorized to logout the user
+    // NOTE: This event is triggered from Axios api responseinterceptor
     const handleUnauthorized = () => {
       dispatch(logout());
       dispatch(setAlert({
