@@ -1,4 +1,6 @@
 import axios from "axios";
+import { setAlert } from "../store/alertSlice";
+import store from "../store";
 
 const apiClient = axios.create({
   baseURL: "http://localhost:3000/api",
@@ -8,11 +10,12 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config) => {
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const { token } = JSON.parse(userData);
+    const userDetails = localStorage.getItem("userDetails");
+    if (userDetails) {
+      const { token } = JSON.parse(userDetails);
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => {
@@ -25,7 +28,15 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
+    store.dispatch(setAlert({
+      open: true,
+      message: error.response?.data?.message || error.message,
+      severity: "error",
+      vertical: "top",
+      horizontal: "center",
+    }));
+
+    if (error.response?.status === 401 || error.response?.status === 403) {
       localStorage.removeItem("userData");
       window.dispatchEvent(new CustomEvent("unauthorized"));
     }

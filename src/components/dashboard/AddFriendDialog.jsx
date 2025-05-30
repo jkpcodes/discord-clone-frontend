@@ -10,18 +10,44 @@ import { validateEmail } from "../../utils/validators";
 import InputField from "../common/InputField";
 import { useState, useEffect } from "react";
 import PrimaryButton from "../common/PrimaryButton";
+import { useDispatch } from "react-redux";
+import { setAlert } from "../../store/alertSlice";
+import { sendFriendInvitation } from "../../services/friends";
+import { useMutation } from "@tanstack/react-query";
 
-const AddFriendDialog = ({
-  isDialogOpen,
-  handleCloseDialog,
-  sendFriendInvitation = () => {},
-}) => {
+const AddFriendDialog = ({ isDialogOpen, handleCloseDialog }) => {
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [isFormValid, setIsFormValid] = useState(false);
 
+  const sendInvitationMutation = useMutation({
+    mutationFn: (email) => sendFriendInvitation(email),
+    onSuccess: () => {
+      handleClose();
+      dispatch(
+        setAlert({
+          open: true,
+          message: "Friend invitation sent",
+          severity: "success",
+        })
+      );
+    },
+    onError: (error) => {
+      dispatch(
+        setAlert({
+          open: true,
+          message: error.message,
+          severity: "error",
+          vertical: "top",
+          horizontal: "center",
+        })
+      );
+    },
+  });
+
   const handleSendInvitation = () => {
     // Send friend request to server
-
+    sendInvitationMutation.mutate({ email });
   };
 
   const handleClose = () => {
@@ -40,9 +66,7 @@ const AddFriendDialog = ({
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          <Typography>
-            Enter email address of the person you want to invite
-          </Typography>
+          Enter email address of the person you want to invite
         </DialogContentText>
         <InputField
           label="Email"
@@ -60,7 +84,7 @@ const AddFriendDialog = ({
             marginLeft: "15px",
             marginRight: "15px",
             marginBottom: "10px",
-            backgroundColor: "#000"
+            backgroundColor: "#000",
           }}
         />
         <PrimaryButton

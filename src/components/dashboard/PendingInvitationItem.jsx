@@ -1,19 +1,47 @@
 import { Tooltip, Box, Typography } from "@mui/material";
-import { useState } from "react";
 import UserAvatar from "./UserAvatar";
 import InvitationsButton from "./InvitationsButton";
+import { useDispatch } from "react-redux";
+import { acceptInvitation, rejectInvitation } from "../../store/friendSlice";
+import { useMutation } from "@tanstack/react-query";
+import { acceptFriendInvitation , rejectFriendInvitation } from "../../services/friends";
+import { setAlert } from "../../store/alertSlice";
 
-const PendingInvitationItem = ({ invitation, acceptInvitation, rejectInvitation }) => {
-  const [buttonDisabled, setButtonDisabled] = useState(false);
+const PendingInvitationItem = ({ invitation }) => {
+  const dispatch = useDispatch();
+
+  const acceptInvitationMutation = useMutation({
+    mutationFn: acceptFriendInvitation,
+    onSuccess: () => {
+      dispatch(acceptInvitation(invitation.senderId._id));
+      dispatch(setAlert({
+        message: "Friend request accepted",
+        type: "success",
+      }));
+    },
+  });
 
   const handleAcceptInvitation = () => {
-    setButtonDisabled(true);
-    acceptInvitation();
+    acceptInvitationMutation.mutate({
+      id: invitation._id,
+    });
   };
 
+  const rejectInvitationMutation = useMutation({
+    mutationFn: rejectFriendInvitation,
+    onSuccess: () => {
+      dispatch(rejectInvitation(invitation.senderId._id));
+      dispatch(setAlert({
+        message: "Friend request deleted",
+        type: "success",
+      }));
+    },
+  });
+
   const handleRejectInvitation = () => {
-    setButtonDisabled(true);
-    rejectInvitation();
+    rejectInvitationMutation.mutate({
+      id: invitation._id,
+    });
   };
 
   return (
@@ -37,7 +65,7 @@ const PendingInvitationItem = ({ invitation, acceptInvitation, rejectInvitation 
         <InvitationsButton
           acceptInvitation={handleAcceptInvitation}
           rejectInvitation={handleRejectInvitation}
-          disabled={buttonDisabled}
+          disabled={acceptInvitationMutation.isPending}
         />
       </div>
     </Tooltip>

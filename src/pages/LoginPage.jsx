@@ -10,7 +10,6 @@ import { validateEmail, validatePassword } from "../utils/Validators";
 import { useDispatch } from "react-redux";
 import { login } from "../services/auth";
 import { saveUserDetails } from "../store/authSlice";
-import { setAlert } from "../store/alertSlice";
 import { useMutation } from "@tanstack/react-query";
 
 const LoginPage = () => {
@@ -31,19 +30,9 @@ const LoginPage = () => {
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
-      console.log(data);
       dispatch(saveUserDetails(data.userDetails));
       navigate("/dashboard");
-    },
-    onError: (error) => {
-      dispatch(setAlert({
-        open: true,
-        message: error.message,
-        severity: "error",
-        vertical: "top",
-        horizontal: "center",
-      }));
-    },
+    }
   });
 
   const handleLogin = async () => {

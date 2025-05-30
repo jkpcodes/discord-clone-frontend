@@ -16,8 +16,8 @@ const alertSlice = createSlice({
       state.open = action.payload.open;
       state.message = action.payload.message;
       state.severity = action.payload.severity;
-      state.vertical = action.payload.vertical;
-      state.horizontal = action.payload.horizontal;
+      state.vertical = action.payload.vertical || "top";
+      state.horizontal = action.payload.horizontal || "center";
     },
     clearAlert: (state) => {
       state.open = false;

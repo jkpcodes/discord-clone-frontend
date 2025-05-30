@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { logout } from '../../store/authSlice';
 import { setAlert } from '../../store/alertSlice';
 import { setUserDetails } from '../../store/authSlice';
+import { connectWithSocketServer, disconnectSocket, getSocket } from '../../services/socketService';
 
 const AuthGuard = () => {
   const navigate = useNavigate();
@@ -12,13 +13,20 @@ const AuthGuard = () => {
   useEffect(() => {
     const userDetails = localStorage.getItem("userDetails");
     if (userDetails) {
-      dispatch(setUserDetails(userDetails));
+      let userDetailsObject = JSON.parse(userDetails);
+      dispatch(setUserDetails(userDetailsObject));
       navigate("/dashboard");
+      
+      // Only connect if not already connected
+      if (!getSocket()?.connected) {
+        connectWithSocketServer(userDetailsObject);
+      }
     }
 
     // Add event listener for unauthorized to logout the user
     // NOTE: This event is triggered from Axios api responseinterceptor
     const handleUnauthorized = () => {
+      disconnectSocket(); // Disconnect socket on logout
       dispatch(logout());
       dispatch(setAlert({
         open: true,
@@ -31,10 +39,15 @@ const AuthGuard = () => {
     };
 
     window.addEventListener('unauthorized', handleUnauthorized);
-    return () => window.removeEventListener('unauthorized', handleUnauthorized);
+    
+    // Cleanup function
+    return () => {
+      window.removeEventListener('unauthorized', handleUnauthorized);
+      // Note: We don't disconnect the socket here as it should persist across route changes
+    };
   }, [navigate, dispatch]);
 
-  return null; // This component doesn't render anything
+  return null;
 };
 
 export default AuthGuard; 
