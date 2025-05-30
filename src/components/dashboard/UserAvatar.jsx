@@ -25,7 +25,7 @@ function stringAvatar(username) {
     sx: {
       bgcolor: stringToColor(username),
     },
-    children: `${username.split(" ")[0][0].toUpperCase()}${username.split(" ").length > 1 ? username.split(" ")[1][0].toUpperCase() : ""}`,
+    children: `${username[0].toUpperCase()}`,
   };
 }
 

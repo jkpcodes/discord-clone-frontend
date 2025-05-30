@@ -56,6 +56,12 @@ const friendSlice = createSlice({
         (friendId) => friendId !== action.payload
       );
     },
+    resetFriendInitialState: (state, action) => {
+      state.friends = [];
+      state.pendingInvitations = [];
+      state.sentInvitations = [];
+      state.onlineFriends = [];
+    },
   },
 });
 
@@ -71,5 +77,6 @@ export const {
   setOnlineFriends,
   addOnlineFriend,
   removeOnlineFriend,
+  resetFriendInitialState,
 } = friendSlice.actions;
 export default friendSlice.reducer;

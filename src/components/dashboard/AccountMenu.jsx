@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
 import { useDispatch } from "react-redux";
 import { logout } from "../../store/authSlice";
+import { resetFriendInitialState } from "../../store/friendSlice";
 import { useNavigate } from "react-router-dom";
 import { Logout, MoreVert } from "@mui/icons-material";
 
@@ -29,6 +30,7 @@ export default function AccountMenu() {
 
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(resetFriendInitialState());
     setAnchorEl(null);
     navigate("/login");
   };

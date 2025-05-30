@@ -3,31 +3,33 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../store/authSlice';
 import { setAlert } from '../../store/alertSlice';
-import { setUserDetails } from '../../store/authSlice';
+import { resetFriendInitialState } from '../../store/friendSlice';
 import { connectWithSocketServer, disconnectSocket, getSocket } from '../../services/socketService';
+import { useSelector } from 'react-redux';
 
 const AuthGuard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const userDetails = useSelector((state) => state.auth.userDetails);
 
   useEffect(() => {
-    const userDetails = localStorage.getItem("userDetails");
     if (userDetails) {
-      let userDetailsObject = JSON.parse(userDetails);
-      dispatch(setUserDetails(userDetailsObject));
       navigate("/dashboard");
-      
       // Only connect if not already connected
       if (!getSocket()?.connected) {
-        connectWithSocketServer(userDetailsObject);
+        connectWithSocketServer(userDetails);
       }
     }
+  }, [userDetails, navigate]);
 
+
+  useEffect(() => {
     // Add event listener for unauthorized to logout the user
     // NOTE: This event is triggered from Axios api responseinterceptor
     const handleUnauthorized = () => {
       disconnectSocket(); // Disconnect socket on logout
       dispatch(logout());
+      dispatch(resetFriendInitialState());
       dispatch(setAlert({
         open: true,
         message: 'Your session has expired. Please login again.',
